@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <cmath>
 
 unsigned int colorIndex= 1;
 bool drawLines = false;
@@ -123,9 +124,10 @@ unsigned int compileFragmentShader()
 	const char* fragmentShaderSource =
 		"#version 330 core\n"
 		"out vec4 FragColor;\n"
+		"uniform vec4 myColor;\n"
 		"void main()\n"
 		"{\n"
-    	"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    	"	FragColor = myColor;\n"
 		"}";
 
 	unsigned int fragmentShader;
@@ -183,10 +185,13 @@ int main()
 	unsigned int squareVAO = createSquare();
 	unsigned int shaderProgram = createShaderProgram();
 
-
+	int myColorLocation = glGetUniformLocation(shaderProgram, "myColor");
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
+
+		float timeValue = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 
 		//rendering commands
 		if (colorIndex == 1 )
@@ -201,8 +206,10 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
+
 		glUseProgram(shaderProgram);
 
+		glUniform4f(myColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		if (drawSquare) {
 			glBindVertexArray(squareVAO);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
