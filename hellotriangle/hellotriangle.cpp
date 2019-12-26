@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "shader.h"
+
 unsigned int colorIndex= 1;
 bool drawLines = false;
 bool drawSquare = false;
@@ -92,80 +94,6 @@ unsigned int createSquare()
 	return VAO;
 }
 
-void printShaderCompilerLog(unsigned int shader)
-{
-	int  success;
-	char infoLog[512];
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-	if(!success)
-	{
-    	glGetShaderInfoLog(shader, 512, NULL, infoLog);
-    	std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}	
-}
-
-unsigned int compileVertexShader()
-{
-	const char* vertexShaderSource = 
-		"#version 330 core\n" 
-		"layout (location = 0) in vec3 aPos;\n" // position
-		"layout (location = 1) in vec3 aColor;\n" // color
-		"out vec3 ourColor;" // output a color to the fragment shader
-		"void main()\n"
-		"{\n"
-    	"	gl_Position = vec4(aPos, 1.0);\n"
-    	"	ourColor = aColor;\n"
-		"}\n";
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	printShaderCompilerLog(vertexShader);
-
-	return vertexShader;
-}
-
-unsigned int compileFragmentShader()
-{
-	const char* fragmentShaderSource =
-		"#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"in vec3 ourColor;\n"
-		"void main()\n"
-		"{\n"
-    	"	FragColor = vec4(ourColor, 1.0);\n"
-		"}";
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	printShaderCompilerLog(fragmentShader);
-
-	return fragmentShader;
-}
-
-unsigned int createShaderProgram()
-{
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, compileVertexShader());
-	glAttachShader(shaderProgram, compileFragmentShader());
-	glLinkProgram(shaderProgram);
-	int success;
-	char infoLog[512];
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if(!success) {
-    	glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    	    	std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	return shaderProgram;
-}
-
 int main()
 {
 	glfwInit();
@@ -189,9 +117,10 @@ int main()
 	glViewport(0,0,800,600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	Shader shader("./vertex.sl", "./fragment.sl");
+
 	unsigned int triangleVAO = createTriangle();
 	unsigned int squareVAO = createSquare();
-	unsigned int shaderProgram = createShaderProgram();
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -212,8 +141,7 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-
-		glUseProgram(shaderProgram);
+		shader.use();
 
 		if (drawSquare) {
 			glBindVertexArray(squareVAO);
