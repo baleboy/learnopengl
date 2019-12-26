@@ -34,9 +34,10 @@ void processInput(GLFWwindow *window)
 unsigned int createTriangle()
 {
 	float vertices[] = {
-    	-0.5f, -0.5f, 0.0f,
-     	0.5f, -0.5f, 0.0f,
-     	0.0f,  0.5f, 0.0f
+		// positions		// colors
+    	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+     	0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,
+     	0.0f,  0.5f, 0.0f,	0.0f, 0.0f, 1.0f
 	};
 
 	unsigned int VAO;
@@ -48,8 +49,12 @@ unsigned int createTriangle()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);  
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+	glEnableVertexAttribArray(1);  	
 
 	return VAO;
 }
@@ -104,10 +109,13 @@ unsigned int compileVertexShader()
 {
 	const char* vertexShaderSource = 
 		"#version 330 core\n" 
-		"layout (location = 0) in vec3 aPos;\n"
+		"layout (location = 0) in vec3 aPos;\n" // position
+		"layout (location = 1) in vec3 aColor;\n" // color
+		"out vec3 ourColor;" // output a color to the fragment shader
 		"void main()\n"
 		"{\n"
-    	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    	"	gl_Position = vec4(aPos, 1.0);\n"
+    	"	ourColor = aColor;\n"
 		"}\n";
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -124,10 +132,10 @@ unsigned int compileFragmentShader()
 	const char* fragmentShaderSource =
 		"#version 330 core\n"
 		"out vec4 FragColor;\n"
-		"uniform vec4 myColor;\n"
+		"in vec3 ourColor;\n"
 		"void main()\n"
 		"{\n"
-    	"	FragColor = myColor;\n"
+    	"	FragColor = vec4(ourColor, 1.0);\n"
 		"}";
 
 	unsigned int fragmentShader;
@@ -185,8 +193,6 @@ int main()
 	unsigned int squareVAO = createSquare();
 	unsigned int shaderProgram = createShaderProgram();
 
-	int myColorLocation = glGetUniformLocation(shaderProgram, "myColor");
-
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
 
@@ -209,7 +215,6 @@ int main()
 
 		glUseProgram(shaderProgram);
 
-		glUniform4f(myColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		if (drawSquare) {
 			glBindVertexArray(squareVAO);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
