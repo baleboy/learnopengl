@@ -1,3 +1,5 @@
+TARGET = rungl
+
 CC = g++
 CFLAGS = -I ~/include
 OBJ = hellotriangle.o glad.o shader.o
@@ -13,10 +15,10 @@ endif
 %.o: %.cpp
 	$(CC) -c -g -o $@ $< $(CFLAGS) 
 
-hellotriangle: $(OBJ)
+$(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 .PHONY: clean
 
 clean:
-	rm *.o  hellotriangle
+	rm *.o  $(TARGET)
