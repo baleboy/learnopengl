@@ -162,7 +162,7 @@ int main()
 	glViewport(0,0,800,600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	Shader shader("./vertex.sl", "./fragment.sl");
+	Shader shader("./vertex.vs", "./fragment.fs");
 
 	unsigned int triangleVAO = createTriangle();
 	unsigned int squareVAO = createSquare();
