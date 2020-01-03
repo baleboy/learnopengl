@@ -242,10 +242,8 @@ int main()
 		shader.setInt("texture2", 1);
 
 		// send transformation matrices to shader
-		unsigned int transformLoc = glGetUniformLocation(shader.ID, "view");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(view));
-		transformLoc = glGetUniformLocation(shader.ID, "projection");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(projection));		
+		shader.setMat4("view", view);
+		shader.setMat4("projection", projection);
 
 		glBindVertexArray(cubeVAO);
 
@@ -255,8 +253,7 @@ int main()
 		 	float angle = 20.0f * i; 
 		  	model = glm::translate(model, cubePositions[i]);
 		  	model = glm::rotate(model, glm::radians((GLfloat)glfwGetTime() * (50.0f + 10.0f*i) + angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		  	transformLoc = glGetUniformLocation(shader.ID, "model");
-			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model));
+		  	shader.setMat4("model", model);
 		  	glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
