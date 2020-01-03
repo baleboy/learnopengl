@@ -158,6 +158,72 @@ unsigned int createSquare()
 	return VAO;
 }
 
+unsigned int createCube()
+{
+	float vertices[] = {
+	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);  
+	glBindVertexArray(VAO);
+
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);  
+
+	// texture attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
+	glEnableVertexAttribArray(1);  	
+
+	return VAO;
+}
+
 int main()
 {
 	glfwInit();
@@ -188,19 +254,16 @@ int main()
 	glViewport(0,0,800,600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	glEnable(GL_DEPTH_TEST);  
+
 	Shader shader("./vertex.vs", "./fragment.fs");
 
-	unsigned int triangleVAO = createTriangle();
-	unsigned int squareVAO = createSquare();
+	unsigned int cubeVAO = createCube();
 
 	unsigned int texture1, texture2;
 	loadTextures(texture1, texture2);
 
 	// coordinate transformation matrices
-
-	// rotate the square to lie on the floor
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
 
 	// move camera back
 	glm::mat4 view = glm::mat4(1.0f);
@@ -227,7 +290,7 @@ int main()
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Bind the two texture units
 		glActiveTexture(GL_TEXTURE0);
@@ -240,6 +303,8 @@ int main()
 		shader.setInt("texture1", 0);
 		shader.setInt("texture2", 1);
 
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians((GLfloat)glfwGetTime() * 50.0f), glm::vec3(0.5f, 1.0f, 0.0f));  
 		// send transformation matrices to shader
 		unsigned int transformLoc = glGetUniformLocation(shader.ID, "model");
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -248,13 +313,9 @@ int main()
 		transformLoc = glGetUniformLocation(shader.ID, "projection");
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(projection));		
 
-		if (drawSquare) {
-			glBindVertexArray(squareVAO);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		} else {
-			glBindVertexArray(triangleVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-		}
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 		glBindVertexArray(0);
 
 		glfwPollEvents();
