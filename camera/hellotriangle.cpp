@@ -15,6 +15,14 @@ unsigned int colorIndex= 1;
 bool drawLines = false;
 bool drawSquare = true;
 
+// camera vectors (updated by processInput)
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+
+float deltaTime = 0.0f;	// Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
 {
 	glViewport(0, 0, width, height);
@@ -33,6 +41,17 @@ void processInput(GLFWwindow *window)
 
 	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
 		drawLines = !drawLines;	
+
+	float cameraSpeed = 2.5f * deltaTime;
+	
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+     	cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;	
 }
 
 void loadTextures(unsigned int& texture1, unsigned int& texture2)
@@ -207,8 +226,9 @@ int main()
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
 
-		float timeValue = glfwGetTime();
-		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;  
 
 		//rendering commands
 		if (colorIndex == 1 )
@@ -234,12 +254,8 @@ int main()
 		shader.setInt("texture1", 0);
 		shader.setInt("texture2", 1);
 
-		// move camera
-		const float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
 		glm::mat4 view;
-		view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		// send transformation matrices to shader
 		shader.setMat4("view", view);
