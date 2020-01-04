@@ -25,6 +25,7 @@ float lastFrame = 0.0f; // Time of last frame
 
 float yaw = -90.0f;
 float pitch = 0.0f; 
+float fov = 45.0;
 
 bool firstMouse = true;
 
@@ -94,6 +95,18 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(direction);
 }  
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+  if(fov >= 1.0f && fov <= 45.0f)
+  	fov -= yoffset;
+  else if(fov < 1.0f)
+  	fov = 1.0f;
+  else if(fov > 45.0f)
+  	fov = 45.0f;
+}
+
 void loadTextures(unsigned int& texture1, unsigned int& texture2)
 {
 	// could have been an array of two ints with first param '2'
@@ -228,7 +241,13 @@ int main()
 		glfwTerminate();
 		return -1;
 	}
+
 	glfwMakeContextCurrent(window);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback); 
+
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -238,9 +257,6 @@ int main()
 	glViewport(0,0,800,600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, mouse_callback);
-
 	glEnable(GL_DEPTH_TEST);  
 
 	Shader shader("./vertex.vs", "./fragment.fs");
@@ -249,9 +265,6 @@ int main()
 
 	unsigned int texture1, texture2;
 	loadTextures(texture1, texture2);
-
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
 	glm::vec3 cubePositions[] = {
 	  glm::vec3( 0.0f,  0.0f,  0.0f), 
@@ -299,6 +312,9 @@ int main()
 
 		glm::mat4 view;
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
 
 		// send transformation matrices to shader
 		shader.setMat4("view", view);
