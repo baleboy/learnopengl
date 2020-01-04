@@ -23,6 +23,13 @@ glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
+float yaw = -90.0f;
+float pitch = 0.0f; 
+
+bool firstMouse = true;
+
+float lastX, lastY;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
 {
 	glViewport(0, 0, width, height);
@@ -43,7 +50,7 @@ void processInput(GLFWwindow *window)
 		drawLines = !drawLines;	
 
 	float cameraSpeed = 2.5f * deltaTime;
-	
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
      	cameraPos += cameraSpeed * cameraFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -54,6 +61,39 @@ void processInput(GLFWwindow *window)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;	
 }
 
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if(firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+  
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; 
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.05;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+        pitch = 89.0f;
+    if(pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+}  
 void loadTextures(unsigned int& texture1, unsigned int& texture2)
 {
 	// could have been an array of two ints with first param '2'
@@ -197,6 +237,9 @@ int main()
 
 	glViewport(0,0,800,600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	glEnable(GL_DEPTH_TEST);  
 
