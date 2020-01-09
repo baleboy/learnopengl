@@ -16,7 +16,7 @@ unsigned int colorIndex= 1;
 bool drawLines = false;
 bool drawSquare = true;
 
-Camera camera(glm::vec3(0.0f, 0.0f,  3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f,  6.0f));
 
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -66,12 +66,17 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);  
 
-	Shader shader("./vertex.vs", "./fragment.fs");
+	Shader objShader("./vertex.vs", "./fragment.fs");
+	objShader.use();
+	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	unsigned int cube1VAO = createCube();
+	Shader lightShader("./vertex.vs", "./light.fs");
 
-	unsigned int texture1, texture2;
-	loadTextures(texture1, texture2);
+	unsigned int cubeVAO = createCube();
+	unsigned int lightVAO = createCube();
+
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -94,21 +99,33 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		// Place camera
-		shader.use();
+		// Draw cube
+		objShader.use();
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
 		// send transformation matrices to shader
-		shader.setMat4("view", camera.getViewMatrix());
-		shader.setMat4("projection", projection);
-
-
-		// Place first cube
-		glBindVertexArray(cube1VAO);
+		objShader.setMat4("view", camera.getViewMatrix());
+		objShader.setMat4("projection", projection);
 		glm::mat4 model = glm::mat4(1.0f);
-		shader.setMat4("model", model);
+		objShader.setMat4("model", model);
+
+		glBindVertexArray(cubeVAO);
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Draw light
+
+		lightShader.use();
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); 
+		lightShader.setMat4("view", camera.getViewMatrix());
+		lightShader.setMat4("projection", projection);
+		lightShader.setMat4("model", model);
+
+		glBindVertexArray(cubeVAO);
 
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
