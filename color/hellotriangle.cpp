@@ -73,7 +73,6 @@ int main()
 	objShader.use();
 	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
 	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	objShader.setVec3("lightPos", lightPos);
 
 	Shader lightShader("./lightVertex.vs", "./light.fs");
 
@@ -101,10 +100,14 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+        lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+        lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+
 		// Draw cube
 		objShader.use();
 
 		objShader.setVec3("viewPos", camera.getPos());
+		objShader.setVec3("lightPos", lightPos);
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
