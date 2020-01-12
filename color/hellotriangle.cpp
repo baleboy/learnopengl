@@ -71,7 +71,7 @@ int main()
 	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
 	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
-	Shader lightShader("./vertex.vs", "./light.fs");
+	Shader lightShader("./lightVertex.vs", "./light.fs");
 
 	unsigned int cubeVAO = createCube();
 	unsigned int lightVAO = createCube();
