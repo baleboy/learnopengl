@@ -74,7 +74,6 @@ int main()
 	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
 	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 	objShader.setVec3("lightPos", lightPos);
-	objShader.setVec3("viewPos", camera.getPos());
 
 	Shader lightShader("./lightVertex.vs", "./light.fs");
 
@@ -104,6 +103,8 @@ int main()
 
 		// Draw cube
 		objShader.use();
+
+		objShader.setVec3("viewPos", camera.getPos());
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
