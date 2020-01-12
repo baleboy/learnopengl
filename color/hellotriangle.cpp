@@ -66,17 +66,18 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);  
 
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 	Shader objShader("./vertex.vs", "./fragment.fs");
 	objShader.use();
 	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
 	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	objShader.setVec3("lightPos", lightPos);
 
 	Shader lightShader("./lightVertex.vs", "./light.fs");
 
 	unsigned int cubeVAO = createCube();
 	unsigned int lightVAO = createCube();
-
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -230,47 +231,47 @@ void loadTextures(unsigned int& texture1, unsigned int& texture2)
 unsigned int createCube()
 {
 	float vertices[] = {
-	    -0.5f, -0.5f, -0.5f,
-	     0.5f, -0.5f, -0.5f,
-	     0.5f,  0.5f, -0.5f,
-	     0.5f,  0.5f, -0.5f,
-	    -0.5f,  0.5f, -0.5f,
-	    -0.5f, -0.5f, -0.5f,
+	    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+	     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+	     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+	    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+	    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
 
-	    -0.5f, -0.5f,  0.5f,
-	     0.5f, -0.5f,  0.5f,
-	     0.5f,  0.5f,  0.5f,
-	     0.5f,  0.5f,  0.5f,
-	    -0.5f,  0.5f,  0.5f,
-	    -0.5f, -0.5f,  0.5f,
+	    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-	    -0.5f,  0.5f,  0.5f,
-	    -0.5f,  0.5f, -0.5f,
-	    -0.5f, -0.5f, -0.5f,
-	    -0.5f, -0.5f, -0.5f,
-	    -0.5f, -0.5f,  0.5f,
-	    -0.5f,  0.5f,  0.5f,
+	    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-	     0.5f,  0.5f,  0.5f,
-	     0.5f,  0.5f, -0.5f,
-	     0.5f, -0.5f, -0.5f,
-	     0.5f, -0.5f, -0.5f,
-	     0.5f, -0.5f,  0.5f,
-	     0.5f,  0.5f,  0.5f,
+	     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+	     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+	     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-	    -0.5f, -0.5f, -0.5f,
-	     0.5f, -0.5f, -0.5f,
-	     0.5f, -0.5f,  0.5f,
-	     0.5f, -0.5f,  0.5f,
-	    -0.5f, -0.5f,  0.5f,
-	    -0.5f, -0.5f, -0.5f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-	    -0.5f,  0.5f, -0.5f,
-	     0.5f,  0.5f, -0.5f,
-	     0.5f,  0.5f,  0.5f,
-	     0.5f,  0.5f,  0.5f,
-	    -0.5f,  0.5f,  0.5f,
-	    -0.5f,  0.5f, -0.5f,
+	    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 
 	unsigned int VAO;
@@ -283,8 +284,12 @@ unsigned int createCube()
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);  
+
+	// vertex normal attribute 
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);  
 
 	return VAO;
 }
