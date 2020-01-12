@@ -21,6 +21,7 @@ class Camera
 		glm::mat4 getViewMatrix() const;
 
 		float getFov() const;
+		glm::vec3 getPos() const;
 
 	private:
 

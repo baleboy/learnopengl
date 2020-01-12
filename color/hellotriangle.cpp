@@ -66,13 +66,15 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);  
 
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	// glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	glm::vec3 lightPos(-1.2f, 0.0f, 2.0f);
 
 	Shader objShader("./vertex.vs", "./fragment.fs");
 	objShader.use();
 	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
 	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 	objShader.setVec3("lightPos", lightPos);
+	objShader.setVec3("viewPos", camera.getPos());
 
 	Shader lightShader("./lightVertex.vs", "./light.fs");
 
