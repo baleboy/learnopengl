@@ -71,8 +71,13 @@ int main()
 
 	Shader objShader("./vertex.vs", "./fragment.fs");
 	objShader.use();
-	objShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-	objShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+	objShader.setVec3("light.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
+	objShader.setVec3("light.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
+	objShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
+	objShader.setVec3("material.ambient",  glm::vec3(1.0f, 0.5f, 0.31f));
+	objShader.setVec3("material.diffuse",  glm::vec3(1.0f, 0.5f, 0.31f));
+	objShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+	objShader.setFloat("material.shininess", 32.0f);
 
 	Shader lightShader("./lightVertex.vs", "./light.fs");
 
@@ -107,7 +112,18 @@ int main()
 		objShader.use();
 
 		objShader.setVec3("viewPos", camera.getPos());
-		objShader.setVec3("lightPos", lightPos);
+		objShader.setVec3("light.position", lightPos);
+
+		glm::vec3 lightColor;
+		lightColor.x = sin(glfwGetTime() * 2.0f);
+		lightColor.y = sin(glfwGetTime() * 0.7f);
+		lightColor.z = sin(glfwGetTime() * 1.3f);
+  
+		glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+  
+		objShader.setVec3("light.ambient", ambientColor);
+		objShader.setVec3("light.diffuse", diffuseColor);
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -131,6 +147,7 @@ int main()
 		lightShader.setMat4("view", camera.getViewMatrix());
 		lightShader.setMat4("projection", projection);
 		lightShader.setMat4("model", model);
+		lightShader.setVec3("lightColor", lightColor);
 
 		glBindVertexArray(cubeVAO);
 
