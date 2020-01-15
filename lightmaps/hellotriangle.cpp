@@ -27,7 +27,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void loadTextures(unsigned int& texture1, unsigned int& texture2);
 unsigned int createCube();
-unsigned int loadTexture();
+unsigned int loadTexture(const std::string&);
 
 int main()
 {
@@ -79,7 +79,9 @@ int main()
 	objShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 	objShader.setFloat("material.shininess", 32.0f);
 	objShader.setInt("material.diffuse", 0);
-	unsigned int diffuseMap = loadTexture();
+	objShader.setInt("material.specular", 1);
+	unsigned int diffuseMap = loadTexture("container2.png");
+	unsigned int specularMap = loadTexture("container2_specular.png");
 
 	Shader lightShader("./lightVertex.vs", "./light.fs");
 
@@ -132,6 +134,9 @@ int main()
 		objShader.setMat4("model", model);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
 
 		glBindVertexArray(cubeVAO);
 
@@ -199,56 +204,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.processScroll(yoffset);
 }
-
-void loadTextures(unsigned int& texture1, unsigned int& texture2)
-{
-	// could have been an array of two ints with first param '2'
-	glGenTextures(1, &texture1);
-	glGenTextures(1, &texture2);
-
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrChannels;
-	unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Failed to load texture 1" << std::endl;
-	}
-
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	stbi_set_flip_vertically_on_load(true);  
-	data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-    	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    	glGenerateMipmap(GL_TEXTURE_2D);
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Failed to load texture 2" << std::endl;
-	}
-
-}
-
-
 
 unsigned int createCube()
 {
@@ -322,7 +277,7 @@ unsigned int createCube()
 	return VAO;
 }
 
-unsigned int loadTexture()
+unsigned int loadTexture(const std::string& filename)
 {
 	unsigned int texture;
 	glGenTextures(1, &texture);
@@ -335,7 +290,7 @@ unsigned int loadTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrComponents;
-	unsigned char *data = stbi_load("container2.png", &width, &height, &nrComponents, 0);
+	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
 		GLenum format;
