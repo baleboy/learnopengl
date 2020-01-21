@@ -134,6 +134,7 @@ int main()
 		objShader.setVec3("light.diffuse", diffuseColor);
 		objShader.setVec3("light.direction", camera.getFront());
 		objShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
+		objShader.setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -160,8 +161,6 @@ int main()
 		  	objShader.setMat4("model", model);
 		  	glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-		// Draw light
 
 		glBindVertexArray(0);
 
