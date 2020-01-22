@@ -73,9 +73,9 @@ int main()
 
 	Shader objShader("./vertex.vs", "./fragment.fs");
 	objShader.use();
-	objShader.setVec3("light.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
-	objShader.setVec3("light.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
-	objShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
+	objShader.setVec3("flashLight.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
+	objShader.setVec3("flashLight.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
+	objShader.setVec3("flashLight.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
 	objShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 	objShader.setFloat("material.shininess", 32.0f);
 	objShader.setInt("material.diffuse", 0);
@@ -89,10 +89,10 @@ int main()
 	objShader.setVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
 
 	glm::vec3 pointLightPositions[] = {
-		glm::vec3( 0.7f,  0.2f,  2.0f),
-		glm::vec3( 2.3f, -3.3f, -4.0f),
+		glm::vec3( 0.7f,  0.2f,  -5.0f),
+		glm::vec3( 2.3f, -3.3f, -8.0f),
 		glm::vec3(-4.0f,  2.0f, -12.0f),
-		glm::vec3( 0.0f,  0.0f, -3.0f)
+		glm::vec3( 0.0f,  0.0f, -15.0f)
 	};  
 
 	#define NUM_POINT_LIGHTS 4
@@ -152,16 +152,16 @@ int main()
 		objShader.use();
 
 		objShader.setVec3("viewPos", camera.getPos());
-		objShader.setVec3("light.position", camera.getPos());
+		objShader.setVec3("flashLight.position", camera.getPos());
   
 		glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
   
-		objShader.setVec3("light.ambient", ambientColor);
-		objShader.setVec3("light.diffuse", diffuseColor);
-		objShader.setVec3("light.direction", camera.getFront());
-		objShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
-		objShader.setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
+		objShader.setVec3("flashLight.ambient", ambientColor);
+		objShader.setVec3("flashLight.diffuse", diffuseColor);
+		objShader.setVec3("flashLight.direction", camera.getFront());
+		objShader.setFloat("flashLight.cutOff",   glm::cos(glm::radians(12.5f)));
+		objShader.setFloat("flashLight.outerCutOff",   glm::cos(glm::radians(17.5f)));
 
 		objShader.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 
@@ -210,7 +210,7 @@ int main()
 		}
 
 		glBindVertexArray(0);
-		
+
 		glfwSwapBuffers(window);		
 		glfwPollEvents();
 
