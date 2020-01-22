@@ -88,6 +88,27 @@ int main()
 	objShader.setVec3("dirLight.diffuse", glm::vec3(0.3f, 0.3f, 0.3f));
 	objShader.setVec3("dirLight.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
 
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3( 0.7f,  0.2f,  2.0f),
+		glm::vec3( 2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3( 0.0f,  0.0f, -3.0f)
+	};  
+
+	#define NUM_POINT_LIGHTS 4
+
+	for (int i = 0; i < NUM_POINT_LIGHTS; ++i)
+	{
+		std::string base = "pointLights[" + std::to_string(i) + "].";
+
+		objShader.setVec3(base + "position",  pointLightPositions[i]);		
+		objShader.setVec3(base + "ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
+		objShader.setVec3(base + "diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
+		objShader.setVec3(base + "specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
+		objShader.setFloat(base + "constant",  1.0f);
+		objShader.setFloat(base + "linear",    0.09f);
+		objShader.setFloat(base + "quadratic", 0.032f);
+	}
 
 	glm::vec3 cubePositions[] = {
 	  glm::vec3( 0.0f,  0.0f,  0.0f), 
