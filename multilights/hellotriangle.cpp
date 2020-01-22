@@ -191,10 +191,29 @@ int main()
 		  	glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		glBindVertexArray(0);
 
+		// draw lights
+		lightShader.use();
+		lightShader.setMat4("view", camera.getViewMatrix());
+		lightShader.setMat4("projection", projection);
+		lightShader.setVec3("lightColor", lightColor);
+
+		glBindVertexArray(lightVAO);
+
+		for (unsigned int i = 0; i < NUM_POINT_LIGHTS ; ++i)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(0.2f)); 
+			model = glm::translate(model, pointLightPositions[i]);
+			lightShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+		glBindVertexArray(0);
+		
+		glfwSwapBuffers(window);		
 		glfwPollEvents();
-		glfwSwapBuffers(window);
+
 	}
 
 	glfwTerminate();
