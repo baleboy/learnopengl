@@ -73,13 +73,12 @@ int main()
 
 	Shader objShader("./vertex.vs", "./fragment.fs");
 	objShader.use();
+
+	// set the lights
 	objShader.setVec3("flashLight.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
 	objShader.setVec3("flashLight.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
 	objShader.setVec3("flashLight.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
-	objShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 	objShader.setFloat("material.shininess", 32.0f);
-	objShader.setInt("material.diffuse", 0);
-	objShader.setInt("material.specular", 1);
 
 	objShader.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 	objShader.setVec3("dirLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
