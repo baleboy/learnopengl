@@ -22,9 +22,10 @@ private:
 
 	void loadModel(string path);
 	void processNode(aiNode *mode, const aiScene *scene);
-	void processMesh(aiMesh *mesh, const aiScene *scene);
+	Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 	vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
 		string typeName);
+	unsigned int TextureFromFile(const char* filename);
 };
 
 #endif 

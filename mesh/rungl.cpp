@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "stb_image.h"
 #include "mesh.h"
+#include "model.h"
 
 unsigned int colorIndex= 1;
 bool drawLines = false;
@@ -26,12 +27,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void loadTextures(unsigned int& texture1, unsigned int& texture2);
-Mesh* createCube();
-unsigned int loadTexture(const std::string&);
 
 int main()
 {
+
 	glfwInit();
 
   	glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -107,20 +106,7 @@ int main()
 		objShader.setFloat(base + "quadratic", 0.032f);
 	}
 
-	glm::vec3 cubePositions[] = {
-	  glm::vec3( 0.0f,  0.0f,  0.0f), 
-	  glm::vec3( 2.0f,  5.0f, -15.0f), 
-	  glm::vec3(-1.5f, -2.2f, -2.5f),  
-	  glm::vec3(-3.8f, -2.0f, -12.3f),  
-	  glm::vec3( 2.4f, -0.4f, -3.5f),  
-	  glm::vec3(-1.7f,  3.0f, -7.5f),  
-	  glm::vec3( 1.3f, -2.0f, -2.5f),  
-	  glm::vec3( 1.5f,  2.0f, -2.5f), 
-	  glm::vec3( 1.5f,  0.2f, -1.5f), 
-	  glm::vec3(-1.3f,  1.0f, -1.5f)  
-	};
-
-	Mesh* cube = createCube();
+	Model nanosuit("./nanosuit/nanosuit.obj");
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -168,15 +154,7 @@ int main()
 		glm::mat4 model = glm::mat4(1.0f);
 		objShader.setMat4("model", model);
 
-		for(unsigned int i = 0; i < 10; i++)
-		{
-		 	glm::mat4 model = glm::mat4(1.0f);
-		 	float angle = 20.0f * i; 
-		  	model = glm::translate(model, cubePositions[i]);
-		  	model = glm::rotate(model, glm::radians((GLfloat)glfwGetTime() * (50.0f + 10.0f*i) + angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		  	objShader.setMat4("model", model);
-			cube->Draw(objShader);
-		}
+		nanosuit.Draw(objShader);
 
 		glfwSwapBuffers(window);		
 		glfwPollEvents();
@@ -223,102 +201,4 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.processScroll(yoffset);
-}
-
-Mesh* createCube()
-{
-	vector<Vertex> vertices = {
-		// Position, 			Normal, 				TexCoords
-	    {{-0.5f, -0.5f, -0.5f},	{0.0f,  0.0f, -1.0f},	{0.0f, 0.0f}},
-	    {{0.5f, -0.5f, -0.5f}, 	{0.0f,  0.0f, -1.0f}, 	{1.0f, 0.0f}},
-	    {{0.5f,  0.5f, -0.5f}, 	{0.0f,  0.0f, -1.0f}, 	{1.0f, 1.0f}},
-	    {{-0.5f,  0.5f, -0.5f}, {0.0f,  0.0f, -1.0f}, 	{0.0f, 1.0f}},
-
-	    {{-0.5f, -0.5f,  0.5f}, {0.0f,  0.0f, 1.0f}, 	{0.0f, 0.0f}},
-	    {{0.5f, -0.5f,  0.5f}, 	{0.0f,  0.0f, 1.0f}, 	{1.0f, 0.0f}},
-	    {{0.5f,  0.5f,  0.5f},	{0.0f,  0.0f, 1.0f}, 	{1.0f, 1.0f}},
-	    {{-0.5f,  0.5f,  0.5f}, {0.0f,  0.0f, 1.0f}, 	{0.0f, 1.0f}},
-
-	    {{-0.5f,  0.5f,  0.5f},	{-1.0f,  0.0f,  0.0f},  {1.0f, 0.0f}},
-	    {{-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f},	{1.0f, 1.0f}},
-	    {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, 	{0.0f, 1.0f}},
-	    {{-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, 	{0.0f, 0.0f}},
-
-	    {{0.5f,  0.5f,  0.5f},	{1.0f,  0.0f,  0.0f}, 	{1.0f, 0.0f}},
-	    {{0.5f,  0.5f, -0.5f},	{1.0f,  0.0f,  0.0f}, 	{1.0f, 1.0f}},
-	    {{0.5f, -0.5f, -0.5f},	{1.0f,  0.0f,  0.0f}, 	{0.0f, 1.0f}},
-	    {{0.5f, -0.5f,  0.5f},	{1.0f,  0.0f,  0.0f}, 	{0.0f, 0.0f}},
-
-	    {{-0.5f, -0.5f, -0.5f},	{0.0f, -1.0f,  0.0f}, 	{0.0f, 1.0f}},
-	    {{0.5f, -0.5f, -0.5f},	{0.0f, -1.0f,  0.0f},  	{1.0f, 1.0f}},
-	    {{0.5f, -0.5f, 0.5f}, 	{0.0f, -1.0f,  0.0f},  	{1.0f, 0.0f}},
-	    {{-0.5f, -0.5f, 0.5f},	{0.0f, -1.0f,  0.0f},	{0.0f, 0.0f}},
-
-	    {{-0.5f,  0.5f, -0.5f},	{0.0f,  1.0f,  0.0f},	{0.0f, 1.0f}},
-	    {{0.5f,  0.5f, -0.5f},	{0.0f,  1.0f,  0.0f},	{1.0f, 1.0f}},
-	    {{0.5f,  0.5f,  0.5f},	{0.0f,  1.0f,  0.0f},	{1.0f, 0.0f}},
-	    {{-0.5f,  0.5f,  0.5f},	{0.0f,  1.0f,  0.0f},	{0.0f, 0.0f}}
-	};
-
-	vector<unsigned int> indices = {
-
-		0, 1, 3,
-		1, 2, 3,
-		4, 5, 7,
-		5, 6, 7,
-		8, 9, 11,
-		9, 10, 11,
-		12, 13, 15,
-		13, 14, 15,
-		16, 17, 19,
-		17, 18, 19,
-		20, 21, 23,
-		21, 22, 23
-	};
-
-	unsigned int diffuseMap = loadTexture("container2.png");
-	unsigned int specularMap = loadTexture("container2_specular.png");
-
-	vector<Texture> textures = {
-		{ .id = diffuseMap, .type = "texture_diffuse"},
-		{ .id = specularMap, .type = "texture_specular"}
-	};
-
-	Mesh* m = new Mesh(vertices, indices, textures);
-	return m;
-}
-
-unsigned int loadTexture(const std::string& filename)
-{
-	unsigned int texture;
-	glGenTextures(1, &texture);
-
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrComponents;
-	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	return texture;
-
 }
