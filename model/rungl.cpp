@@ -106,7 +106,7 @@ int main()
 		objShader.setFloat(base + "quadratic", 0.032f);
 	}
 
-	Model nanosuit("./nanosuit/nanosuit.obj");
+	Model nanosuit("../resources/nanosuit/nanosuit.obj");
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
