@@ -6,10 +6,10 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
-#include "model.h"
-#include "mesh.h"
-#include "shader.h"
-#include "stb_image.h"
+#include <model.h>
+#include <mesh.h>
+#include <shader.h>
+#include <stb_image.h>
 
 using namespace std;
 

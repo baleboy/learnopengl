@@ -1,7 +1,7 @@
 TARGET = rungl
 
 CC = g++
-CFLAGS = -I ~/include -std=c++11 -fno-elide-constructors 
+CFLAGS = -I ~/include -I ../include -std=c++11 -fno-elide-constructors 
 # FIXME: -fno-elide-constructors is to workaround a double delete error revealed by C++11 move semantics when
 # returning a vector in model.c
 OBJ = glad.o shader.o mesh.o stb_image.o rungl.o camera.o model.o stb_image.o

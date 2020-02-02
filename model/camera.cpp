@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "camera.h"
+#include <camera.h>
 
 
 Camera::Camera(const glm::vec3 &cameraPos) 
