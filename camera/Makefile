@@ -1,8 +1,8 @@
 TARGET = rungl
 
 CC = g++
-CFLAGS = -I ~/include
-OBJ = hellotriangle.o glad.o shader.o camera.o stb_image.o
+CFLAGS = -I ~/include -I ../include
+OBJ = rungl.o ../common/glad.o ../common/shader.o ../common/camera.o ../common/stb_image.o
 
 OSNAME := $(shell uname -s)
 ifeq ($(OSNAME),Darwin)
