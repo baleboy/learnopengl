@@ -122,10 +122,13 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glEnable(GL_DEPTH_TEST);  
+	glEnable(GL_STENCIL_TEST);
 
 	Shader shader("./vertex.vs", "./fragment.fs");
 	shader.use();
 	shader.setInt("texture1", 0);
+
+	Shader outlineShader("./vertex.vs", "./outlineFragment.fs");
 
 
 	unsigned int cubeVAO = createVertices(cubeVertices, sizeof(cubeVertices));
@@ -143,7 +146,8 @@ int main()
 		lastFrame = currentFrame; 
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -152,19 +156,43 @@ int main()
 		shader.setMat4("view", camera.getViewMatrix());
 		shader.setMat4("projection", projection);
 
-        // cubes
+		outlineShader.use();
+		outlineShader.setMat4("view", camera.getViewMatrix());
+		outlineShader.setMat4("projection", projection);
+
+		glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
+		glStencilMask(0xFF); // enable writing to the stencil buffer
+        // cube 1
+        outlineShader.use();
         glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cubeTexture); 	
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        shader.setMat4("model", model);
+        outlineShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // scaled out cube 1
+        outlineShader.use();
+        model = glm::scale(model, glm::vec3(1.1f)); 
+		outlineShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // cube 2
+        shader.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // scaled out cube 2
+        outlineShader.use();
+		model = glm::scale(model, glm::vec3(1.1f)); 
+		outlineShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         // floor
+        shader.use();
         glBindVertexArray(planeVAO);
         glBindTexture(GL_TEXTURE_2D, planeTexture);
         shader.setMat4("model", glm::mat4(1.0f));
