@@ -27,6 +27,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 unsigned int loadTexture(char const *path);
 unsigned int createVertices(float vertices[], size_t size);
+void drawCube(unsigned int VAO, glm::vec3& pos, glm::vec3& scale, unsigned int texture, Shader& shader);
 
 int main()
 {
@@ -130,7 +131,6 @@ int main()
 
 	Shader singleColorShader("./vertex.vs", "./outlineFragment.fs");
 
-
 	unsigned int cubeVAO = createVertices(cubeVertices, sizeof(cubeVertices));
 	unsigned int planeVAO = createVertices(planeVertices, sizeof(planeVertices)); 
 
@@ -139,6 +139,12 @@ int main()
 	planeTexture = loadTexture("../resources/metal.png");
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+	glm::vec3 cube1pos(-1.0f, 0.0f, -1.0f);
+	glm::vec3 cube2pos(2.0f, 0.0f, 0.0f);
+
+	glm::vec3 cubeScale(1.0f);
+	glm::vec3 borderScale(1.05f);
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -172,52 +178,26 @@ int main()
         normalShader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6);
 	
-        // cube 1
+		glm::mat4 model = glm::mat4(1.0f);
+
+        // draw cubes 
         glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
 		glStencilMask(0xFF); // enable writing to the stencil buffer
 
-        glBindVertexArray(cubeVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, cubeTexture); 	
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        normalShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+		drawCube(cubeVAO, cube1pos, cubeScale, cubeTexture, normalShader);
+		drawCube(cubeVAO, cube2pos, cubeScale, cubeTexture, normalShader);
 
-        // scaled out cube 1
-
+        // draw borders
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilMask(0x00); // disable writing to the stencil buffer
 		glDisable(GL_DEPTH_TEST);
 
-        singleColorShader.use();
-        model = glm::scale(model, glm::vec3(1.05f)); 
-		singleColorShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+		drawCube(cubeVAO, cube1pos, borderScale, cubeTexture, singleColorShader);
+		drawCube(cubeVAO, cube2pos, borderScale, cubeTexture, singleColorShader);
 
         glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
 		glStencilMask(0xFF); // enable writing to the stencil buffer
         glEnable(GL_DEPTH_TEST);  
-
-        // cube 2
-        normalShader.use();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        normalShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // scaled out cube 2
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00); // disable writing to the stencil buffer
-		glDisable(GL_DEPTH_TEST);
-
-        singleColorShader.use();
-		model = glm::scale(model, glm::vec3(1.05f)); 
-		singleColorShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glStencilMask(0xFF); // enable writing to the stencil buffer
-        glEnable(GL_DEPTH_TEST); 
 
         glBindVertexArray(0);
 
@@ -317,4 +297,17 @@ unsigned int createVertices(float vertices[], size_t size)
 	glEnableVertexAttribArray(1);  	
 
 	return VAO;
+}
+
+void drawCube(unsigned int VAO, glm::vec3& pos, glm::vec3& scale, unsigned int texture, Shader& shader)
+{
+	shader.use();
+	glBindVertexArray(VAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture); 	
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, pos);
+    model = glm::scale(model, scale); 
+    shader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
