@@ -138,6 +138,8 @@ int main()
 	cubeTexture = loadTexture("../resources/marble.jpg");
 	planeTexture = loadTexture("../resources/metal.png");
 
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
 
@@ -145,14 +147,15 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame; 
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
+		glEnable(GL_DEPTH_TEST);  
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
 		// send transformation matrices to shader
+		normalShader.use();
 		normalShader.setMat4("view", camera.getViewMatrix());
 		normalShader.setMat4("projection", projection);
 
@@ -160,10 +163,19 @@ int main()
 		singleColorShader.setMat4("view", camera.getViewMatrix());
 		singleColorShader.setMat4("projection", projection);
 
-		glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
-		glStencilMask(0xFF); // enable writing to the stencil buffer
-        // cube 1
+       	// floor
+       	
+       	glStencilMask(0x00);
         normalShader.use();
+        glBindVertexArray(planeVAO);
+        glBindTexture(GL_TEXTURE_2D, planeTexture);
+        normalShader.setMat4("model", glm::mat4(1.0f));
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+	
+        // cube 1
+        glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
+		glStencilMask(0xFF); // enable writing to the stencil buffer
+
         glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cubeTexture); 	
@@ -173,10 +185,19 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // scaled out cube 1
+
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00); // disable writing to the stencil buffer
+		glDisable(GL_DEPTH_TEST);
+
         singleColorShader.use();
-        model = glm::scale(model, glm::vec3(1.1f)); 
+        model = glm::scale(model, glm::vec3(1.05f)); 
 		singleColorShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
+		glStencilMask(0xFF); // enable writing to the stencil buffer
+        glEnable(GL_DEPTH_TEST);  
 
         // cube 2
         normalShader.use();
@@ -186,17 +207,18 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // scaled out cube 2
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00); // disable writing to the stencil buffer
+		glDisable(GL_DEPTH_TEST);
+
         singleColorShader.use();
-		model = glm::scale(model, glm::vec3(1.1f)); 
+		model = glm::scale(model, glm::vec3(1.05f)); 
 		singleColorShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        // floor
-        normalShader.use();
-        glBindVertexArray(planeVAO);
-        glBindTexture(GL_TEXTURE_2D, planeTexture);
-        normalShader.setMat4("model", glm::mat4(1.0f));
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+		glStencilMask(0xFF); // enable writing to the stencil buffer
+        glEnable(GL_DEPTH_TEST); 
+
         glBindVertexArray(0);
 
 		glfwPollEvents();
