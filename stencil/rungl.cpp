@@ -124,11 +124,11 @@ int main()
 	glEnable(GL_DEPTH_TEST);  
 	glEnable(GL_STENCIL_TEST);
 
-	Shader shader("./vertex.vs", "./fragment.fs");
-	shader.use();
-	shader.setInt("texture1", 0);
+	Shader normalShader("./vertex.vs", "./fragment.fs");
+	normalShader.use();
+	normalShader.setInt("texture1", 0);
 
-	Shader outlineShader("./vertex.vs", "./outlineFragment.fs");
+	Shader singleColorShader("./vertex.vs", "./outlineFragment.fs");
 
 
 	unsigned int cubeVAO = createVertices(cubeVertices, sizeof(cubeVertices));
@@ -153,49 +153,49 @@ int main()
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
 		// send transformation matrices to shader
-		shader.setMat4("view", camera.getViewMatrix());
-		shader.setMat4("projection", projection);
+		normalShader.setMat4("view", camera.getViewMatrix());
+		normalShader.setMat4("projection", projection);
 
-		outlineShader.use();
-		outlineShader.setMat4("view", camera.getViewMatrix());
-		outlineShader.setMat4("projection", projection);
+		singleColorShader.use();
+		singleColorShader.setMat4("view", camera.getViewMatrix());
+		singleColorShader.setMat4("projection", projection);
 
 		glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should update the stencil buffer
 		glStencilMask(0xFF); // enable writing to the stencil buffer
         // cube 1
-        outlineShader.use();
+        normalShader.use();
         glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, cubeTexture); 	
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        outlineShader.setMat4("model", model);
+        normalShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // scaled out cube 1
-        outlineShader.use();
+        singleColorShader.use();
         model = glm::scale(model, glm::vec3(1.1f)); 
-		outlineShader.setMat4("model", model);
+		singleColorShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // cube 2
-        shader.use();
+        normalShader.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        shader.setMat4("model", model);
+        normalShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // scaled out cube 2
-        outlineShader.use();
+        singleColorShader.use();
 		model = glm::scale(model, glm::vec3(1.1f)); 
-		outlineShader.setMat4("model", model);
+		singleColorShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // floor
-        shader.use();
+        normalShader.use();
         glBindVertexArray(planeVAO);
         glBindTexture(GL_TEXTURE_2D, planeTexture);
-        shader.setMat4("model", glm::mat4(1.0f));
+        normalShader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
