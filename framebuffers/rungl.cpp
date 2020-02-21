@@ -91,16 +91,16 @@ int main()
          5.0f, -0.5f, -5.0f,  2.0f, 2.0f								
     };
 
-    float quadVertices[] = {
-    	// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-        0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
-        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+float quadVertices[] = {  
+    // positions   // texCoords
+    -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+     1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
 
-        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-        1.0f,  0.5f,  0.0f,  1.0f,  0.0f
-    };
+    -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,
+     1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
+     1.0f,  1.0f,  0.0f, 1.0f, 1.0f
+};	
 
 	glfwInit();
 
@@ -145,11 +145,16 @@ int main()
 	shader.use();
 	shader.setInt("texture1", 0);
 
+	Shader screenShader("./screen.vs", "./screen.fs");
+	screenShader.use();
+	screenShader.setInt("screenTexture", 0);
+
 
 	unsigned int cubeVAO = createVAO(cubeVertices, sizeof(cubeVertices));
 	unsigned int planeVAO = createVAO(planeVertices, sizeof(planeVertices)); 
+	unsigned int screenVAO = createVAO(quadVertices, sizeof(quadVertices));
 
-	unsigned int cubeTexture, planeTexture, windowTexture;
+	unsigned int cubeTexture, planeTexture;
 	cubeTexture = loadTexture("../resources/container.jpg");
 	planeTexture = loadTexture("../resources/metal.png");
 
@@ -180,7 +185,7 @@ int main()
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
-	
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 
 	while(!glfwWindowShouldClose(window)){ 
@@ -190,12 +195,17 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame; 
 
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);  
+
+		glEnable(GL_DEPTH_TEST);
+
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
+		shader.use();
 		// send transformation matrices to shader
 		shader.setMat4("view", camera.getViewMatrix());
 		shader.setMat4("projection", projection);
@@ -219,7 +229,21 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // draw screen
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+		glClear(GL_COLOR_BUFFER_BIT);
+		 
+		screenShader.use();  
+		glBindVertexArray(screenVAO);
+		glDisable(GL_DEPTH_TEST);
+		glBindTexture(GL_TEXTURE_2D, fbTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(0);
 		glfwPollEvents();
+
 		glfwSwapBuffers(window);
 	}
 
