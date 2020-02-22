@@ -1,7 +1,7 @@
 TARGET = rungl
 
 CC = g++
-CFLAGS = -I ~/include -I ../include -std=c++11
+CFLAGS = -I ~/include -I ../include -std=c++11 -fno-elide-constructors 
 OBJ = rungl.o ../common/glad.o ../common/shader.o ../common/camera.o ../common/stb_image.o
 
 OSNAME := $(shell uname -s)
