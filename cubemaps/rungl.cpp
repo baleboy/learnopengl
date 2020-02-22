@@ -14,6 +14,8 @@
 #include <camera.h>
 #include <stb_image.h>
 
+using namespace std;
+
 unsigned int colorIndex= 1;
 bool drawLines = false;
 bool drawSquare = true;
@@ -29,10 +31,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 unsigned int loadTexture(char const *path);
 unsigned int createVAO(float vertices[], size_t size);
+unsigned int loadCubemap(const std::vector<std::string>& faces);
+unsigned int createSkybox(float vertices[], size_t size);
 
 int main()
 {
-		using namespace std;
 
 		float cubeVertices[] = {
 	    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -91,6 +94,60 @@ int main()
          5.0f, -0.5f, -5.0f,  2.0f, 2.0f								
     };
 
+    float skyboxVertices[] = {
+	    // positions          
+	    -1.0f,  1.0f, -1.0f,
+	    -1.0f, -1.0f, -1.0f,
+	     1.0f, -1.0f, -1.0f,
+	     1.0f, -1.0f, -1.0f,
+	     1.0f,  1.0f, -1.0f,
+	    -1.0f,  1.0f, -1.0f,
+
+	    -1.0f, -1.0f,  1.0f,
+	    -1.0f, -1.0f, -1.0f,
+	    -1.0f,  1.0f, -1.0f,
+	    -1.0f,  1.0f, -1.0f,
+	    -1.0f,  1.0f,  1.0f,
+	    -1.0f, -1.0f,  1.0f,
+
+	     1.0f, -1.0f, -1.0f,
+	     1.0f, -1.0f,  1.0f,
+	     1.0f,  1.0f,  1.0f,
+	     1.0f,  1.0f,  1.0f,
+	     1.0f,  1.0f, -1.0f,
+	     1.0f, -1.0f, -1.0f,
+
+	    -1.0f, -1.0f,  1.0f,
+	    -1.0f,  1.0f,  1.0f,
+	     1.0f,  1.0f,  1.0f,
+	     1.0f,  1.0f,  1.0f,
+	     1.0f, -1.0f,  1.0f,
+	    -1.0f, -1.0f,  1.0f,
+
+	    -1.0f,  1.0f, -1.0f,
+	     1.0f,  1.0f, -1.0f,
+	     1.0f,  1.0f,  1.0f,
+	     1.0f,  1.0f,  1.0f,
+	    -1.0f,  1.0f,  1.0f,
+	    -1.0f,  1.0f, -1.0f,
+
+	    -1.0f, -1.0f, -1.0f,
+	    -1.0f, -1.0f,  1.0f,
+	     1.0f, -1.0f, -1.0f,
+	     1.0f, -1.0f, -1.0f,
+	    -1.0f, -1.0f,  1.0f,
+	     1.0f, -1.0f,  1.0f
+	};
+
+    vector<string> faces {
+    	"right.jpg",
+    	"left.jpg",
+    	"top.jpg",
+    	"bottom.jpg",
+    	"front.jpg",
+    	"back.jpg"
+	};
+
 	glfwInit();
 
   	glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -134,14 +191,18 @@ int main()
 	shader.use();
 	shader.setInt("texture1", 0);
 
+	Shader skyboxShader("./skybox.vs", "./skybox.fs");
+	skyboxShader.use();
+	shader.setInt("skybox", 0);
+
 	unsigned int cubeVAO = createVAO(cubeVertices, sizeof(cubeVertices));
 	unsigned int planeVAO = createVAO(planeVertices, sizeof(planeVertices)); 
+	unsigned int skyboxVAO = createSkybox(skyboxVertices, sizeof(skyboxVertices));
 
-	unsigned int cubeTexture, planeTexture;
+	unsigned int cubeTexture, planeTexture, skyboxTexture;
 	cubeTexture = loadTexture("../resources/container.jpg");
 	planeTexture = loadTexture("../resources/metal.png");
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+	skyboxTexture = loadCubemap(faces);
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -152,11 +213,23 @@ int main()
 
 		glEnable(GL_DEPTH_TEST);
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		// glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
+
+		// draw sky
+		glDepthMask(GL_FALSE);
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+		skyboxShader.use();
+		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));  
+		skyboxShader.setMat4("view", view);
+		skyboxShader.setMat4("projection", projection);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
 
 		shader.use();
 		// send transformation matrices to shader
@@ -182,7 +255,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glBindVertexArray(0);
-        
+
 		glfwPollEvents();
 
 		glfwSwapBuffers(window);
@@ -278,6 +351,59 @@ unsigned int createVAO(float vertices[], size_t size)
 	// texture attribute
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
 	glEnableVertexAttribArray(1);  	
+
+	return VAO;
+}
+
+unsigned int loadCubemap(const std::vector<std::string>& faces)
+{
+	unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+
+	for (unsigned int i = 0 ; i < faces.size() ; ++i)
+	{
+		string path = "../resources/skybox/" + faces[i];
+        unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+                         0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            );
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Cubemap texture failed to load at path: " << path << std::endl;
+            stbi_image_free(data);
+        }
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;	
+}
+
+unsigned int createSkybox(float vertices[], size_t size)
+{
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);  
+	glBindVertexArray(VAO);
+
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);  
 
 	return VAO;
 }
