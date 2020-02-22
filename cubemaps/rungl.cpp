@@ -219,18 +219,6 @@ int main()
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
-		// draw sky
-		glDepthMask(GL_FALSE);
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
-		skyboxShader.use();
-		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));  
-		skyboxShader.setMat4("view", view);
-		skyboxShader.setMat4("projection", projection);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-
 		shader.use();
 		// send transformation matrices to shader
 		shader.setMat4("view", camera.getViewMatrix());
@@ -253,6 +241,18 @@ int main()
         glBindTexture(GL_TEXTURE_2D, planeTexture);
         shader.setMat4("model", glm::mat4(1.0f));
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// draw sky
+		glDepthFunc(GL_LEQUAL);
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+		skyboxShader.use();
+		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));  
+		skyboxShader.setMat4("view", view);
+		skyboxShader.setMat4("projection", projection);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthFunc(GL_LESS);
 
         glBindVertexArray(0);
 
