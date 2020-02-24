@@ -18,7 +18,7 @@ unsigned int colorIndex= 1;
 bool drawLines = false;
 bool drawSquare = true;
 
-Camera camera(glm::vec3(0.0f, 0.0f,  6.0f));
+Camera camera(glm::vec3(0.0f, 0.0f,  80.0f));
 
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -74,9 +74,6 @@ int main()
 	objShader.use();
 
 	// set the lights
-	objShader.setVec3("flashLight.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
-	objShader.setVec3("flashLight.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f)); // darken the light a bit to fit the scene
-	objShader.setVec3("flashLight.specular", glm::vec3(1.0f, 1.0f, 1.0f)); 
 	objShader.setFloat("material.shininess", 32.0f);
 
 	objShader.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
@@ -106,7 +103,42 @@ int main()
 		objShader.setFloat(base + "quadratic", 0.032f);
 	}
 
-	Model nanosuit("../resources/nanosuit/nanosuit.obj");
+	Model planet("../resources/planet/planet.obj");
+	Model asteroid("../resources/rock/rock.obj");
+
+	// asteroid transforms
+	unsigned int amount = 1000;
+	glm::mat4 *modelMatrices;
+	modelMatrices = new glm::mat4[amount];
+
+	srand(glfwGetTime()); // initialize random seed	
+	float radius = 50.0;
+	float offset = 2.5f;
+
+	for(unsigned int i = 0; i < amount; i++)
+	{
+    	glm::mat4 model = glm::mat4(1.0f);
+    	// 1. translation: displace along circle with 'radius' in range [-offset, offset]
+    	float angle = (float)i / (float)amount * 360.0f;
+    	float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+    	float x = sin(angle) * radius + displacement;
+    	displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+    	float y = displacement * 0.4f; // keep height of field smaller compared to width of x and z
+    	displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+    	float z = cos(angle) * radius + displacement;
+    	model = glm::translate(model, glm::vec3(x, y, z));
+
+    	// 2. scale: Scale between 0.05 and 0.25f
+    	float scale = (rand() % 20) / 100.0f + 0.05;
+    	model = glm::scale(model, glm::vec3(scale));
+
+    	// 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
+    	float rotAngle = (rand() % 360);
+    	model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+    	// 4. now add to list of matrices
+    	modelMatrices[i] = model;
+	}  
 
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
@@ -128,33 +160,28 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Draw cube
 		objShader.use();
 
 		objShader.setVec3("viewPos", camera.getPos());
-		objShader.setVec3("flashLight.position", camera.getPos());
-  
-		glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); // decrease the influence
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-  
-		objShader.setVec3("flashLight.ambient", ambientColor);
-		objShader.setVec3("flashLight.diffuse", diffuseColor);
-		objShader.setVec3("flashLight.direction", camera.getFront());
-		objShader.setFloat("flashLight.cutOff",   glm::cos(glm::radians(12.5f)));
-		objShader.setFloat("flashLight.outerCutOff",   glm::cos(glm::radians(17.5f)));
-
 		objShader.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 
 		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(camera.getFov()), 800.0f / 600.0f, 0.1f, 400.0f);
 
 		// send transformation matrices to shader
 		objShader.setMat4("view", camera.getViewMatrix());
 		objShader.setMat4("projection", projection);
 		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
 		objShader.setMat4("model", model);
 
-		nanosuit.Draw(objShader);
+		planet.Draw(objShader);
+
+		for (int i = 0 ; i < amount; ++i) {
+			objShader.setMat4("model", modelMatrices[i]);
+			asteroid.Draw(objShader);
+		}
 
 		glfwSwapBuffers(window);		
 		glfwPollEvents();
