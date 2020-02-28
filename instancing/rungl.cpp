@@ -70,6 +70,8 @@ int main()
 	glm::vec3 lightPos(-1.2f, 0.0f, 2.0f);
 	glm::vec3 lightColor(1.0, 1.0, 1.0);
 
+	Shader instanceShader("./instance.vs", "./fragment.fs");
+
 	Shader objShader("./vertex.vs", "./fragment.fs");
 	objShader.use();
 
@@ -107,7 +109,7 @@ int main()
 	Model asteroid("../resources/rock/rock.obj");
 
 	// asteroid transforms
-	unsigned int amount = 1000;
+	unsigned int amount = 20000;
 	glm::mat4 *modelMatrices;
 	modelMatrices = new glm::mat4[amount];
 
@@ -140,6 +142,35 @@ int main()
     	modelMatrices[i] = model;
 	}  
 
+	// generate instance data
+	unsigned int buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+  
+	for(unsigned int i = 0; i < asteroid.meshes.size(); i++)
+	{
+    	unsigned int VAO = asteroid.meshes[i].VAO;
+    	glBindVertexArray(VAO);
+    	// vertex Attributes
+    	GLsizei vec4Size = sizeof(glm::vec4);
+    	glEnableVertexAttribArray(3); 
+    	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+    	glEnableVertexAttribArray(4); 
+    	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
+    	glEnableVertexAttribArray(5); 
+    	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+    	glEnableVertexAttribArray(6); 
+    	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+
+    	glVertexAttribDivisor(3, 1);
+    	glVertexAttribDivisor(4, 1);
+    	glVertexAttribDivisor(5, 1);
+    	glVertexAttribDivisor(6, 1);
+
+    	glBindVertexArray(0);
+	}  
+
 	while(!glfwWindowShouldClose(window)){ 
 		processInput(window);
 
@@ -149,7 +180,7 @@ int main()
 
 		//rendering commands
 		if (colorIndex == 1 )
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		else 
 			glClearColor(0.3f, 0.2f, 0.2f, 1.0f);
 
@@ -178,10 +209,18 @@ int main()
 
 		planet.Draw(objShader);
 
-		for (int i = 0 ; i < amount; ++i) {
-			objShader.setMat4("model", modelMatrices[i]);
-			asteroid.Draw(objShader);
-		}
+		// draw asteroids
+		instanceShader.use();
+		instanceShader.setMat4("view", camera.getViewMatrix());
+		instanceShader.setMat4("projection", projection);
+
+		for(unsigned int i = 0; i < asteroid.meshes.size(); i++)
+		{
+    		glBindVertexArray(asteroid.meshes[i].VAO);
+    		glDrawElementsInstanced(
+        		GL_TRIANGLES, asteroid.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount
+    		);
+		} 
 
 		glfwSwapBuffers(window);		
 		glfwPollEvents();

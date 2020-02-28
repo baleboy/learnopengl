@@ -15,9 +15,9 @@ class Model
 public:
 	Model(const char *path);
 	void Draw(Shader shader);
+	vector<Mesh> meshes;
 
 private:
-	vector<Mesh> meshes;
 	string directory;
 
 	void loadModel(string path);
