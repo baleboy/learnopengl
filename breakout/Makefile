@@ -7,9 +7,9 @@ OBJ = ../common/glad.o ../common/stb_image.o game.o shader.o texture.o resource_
 OSNAME := $(shell uname -s)
 ifeq ($(OSNAME),Darwin)
 	CFLAGS += -D OSX -Wno-deprecated-declarations
-	LDFLAGS = -L ~/lib -lassimp -lglfw -framework CoreVideo -framework OpenGL -framework IOKit -framework Cocoa -framework Carbon 
+	LDFLAGS = -L ~/lib -lglfw -framework CoreVideo -framework OpenGL -framework IOKit -framework Cocoa -framework Carbon 
 else
-	LDFLAGS = -L ~/lib -lassimp -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+	LDFLAGS = -L ~/lib -lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 endif
 
 %.o: %.cpp
