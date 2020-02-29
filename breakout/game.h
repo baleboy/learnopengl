@@ -1,8 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-// FIXME: the OpenGL include folder is specific to OS X 
-#include <OpenGL/gl.h>
+#include <GLFW/glfw3.h>
 
 class Game 
 {
