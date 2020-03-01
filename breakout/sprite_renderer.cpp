@@ -1,5 +1,16 @@
 #include "sprite_renderer.h"
 
+SpriteRenderer::SpriteRenderer(Shader &shader)
+{
+    this->shader = shader;
+    this->initRenderData();
+}
+
+SpriteRenderer::~SpriteRenderer()
+{
+    glDeleteVertexArrays(1, &this->quadVAO);
+}
+
 void SpriteRenderer::initRenderData()
 {
     // Configure VAO/VBO
