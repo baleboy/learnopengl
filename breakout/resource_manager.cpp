@@ -19,24 +19,24 @@ std::map<std::string, Texture2D>    ResourceManager::Textures;
 std::map<std::string, Shader>       ResourceManager::Shaders;
 
 
-Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, std::string name)
+Shader& ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, std::string name)
 {
     Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
     return Shaders[name];
 }
 
-Shader ResourceManager::GetShader(std::string name)
+Shader& ResourceManager::GetShader(std::string name)
 {
     return Shaders[name];
 }
 
-Texture2D ResourceManager::LoadTexture(const GLchar *file, GLboolean alpha, std::string name)
+Texture2D& ResourceManager::LoadTexture(const GLchar *file, GLboolean alpha, std::string name)
 {
     Textures[name] = loadTextureFromFile(file, alpha);
     return Textures[name];
 }
 
-Texture2D ResourceManager::GetTexture(std::string name)
+Texture2D& ResourceManager::GetTexture(std::string name)
 {
     return Textures[name];
 }
@@ -107,9 +107,15 @@ Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alp
     // Load image
     int width, height, nrComponents;
     unsigned char* image = stbi_load(file, &width, &height, &nrComponents, 0);
-    // Now generate texture
-    texture.Generate(width, height, image);
-    // And finally free image data
-    stbi_image_free(image);
+    assert(nrComponents == 4);
+    if (image) {
+        texture.Generate(width, height, image);
+        stbi_image_free(image);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << file << std::endl;
+        stbi_image_free(image);
+    }
     return texture;
 }

@@ -1,7 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+
+#include "sprite_renderer.h"
 
 class Game 
 {
@@ -28,6 +30,9 @@ class Game
 		void ProcessInput(GLfloat dt);
 		void Update(GLfloat dt);
 		void Render();
+
+	private:
+		SpriteRenderer* Renderer;
 };
 
 #endif 
