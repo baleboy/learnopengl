@@ -107,7 +107,7 @@ Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alp
     // Load image
     int width, height, nrComponents;
     unsigned char* image = stbi_load(file, &width, &height, &nrComponents, 0);
-    assert(nrComponents == 4);
+    
     if (image) {
         texture.Generate(width, height, image);
         stbi_image_free(image);

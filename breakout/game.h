@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "sprite_renderer.h"
+#include "game_level.h"
 
 class Game 
 {
@@ -19,6 +20,9 @@ class Game
 		GameState	State;
 		GLboolean	Keys[1024];
 		GLuint		Width, Height;
+
+   		std::vector<GameLevel> Levels;
+    	GLuint                 Level;
 
 		Game(GLuint width, GLuint height);
 		~Game();	
