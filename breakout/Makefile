@@ -2,7 +2,7 @@ TARGET = bout
 
 CC = g++
 CFLAGS = -I . -I ~/include -I ../include -std=c++11
-OBJ = ../common/glad.o ../common/stb_image.o game.o shader.o texture.o resource_manager.o sprite_renderer.o game_object.o main.o
+OBJ = ../common/glad.o ../common/stb_image.o game.o shader.o texture.o resource_manager.o sprite_renderer.o game_object.o game_level.o main.o
 
 OSNAME := $(shell uname -s)
 ifeq ($(OSNAME),Darwin)

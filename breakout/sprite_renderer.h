@@ -1,3 +1,6 @@
+#ifndef SPRITE_RENDERER_H
+#define SPRITE_RENDERER_H
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -19,3 +22,5 @@ class SpriteRenderer
 
         void initRenderData();
 };
+
+#endif
