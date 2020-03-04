@@ -72,21 +72,36 @@ void Game::ProcessInput(GLfloat dt)
         // Move playerboard
         if (this->Keys[GLFW_KEY_A])
         {
-            if (Player->Position.x >= 0)
+            if (Player->Position.x >= 0) 
+            {
                 Player->Position.x -= velocity;
+                if (Ball->Stuck)
+                    Ball->Position.x -= velocity;
+            }
         }
         if (this->Keys[GLFW_KEY_D])
         {
             if (Player->Position.x <= this->Width - Player->Size.x)
+            {
                 Player->Position.x += velocity;
+                if (Ball->Stuck)
+                    Ball->Position.x += velocity;
+            }
         }
+        if (this->Keys[GLFW_KEY_SPACE])
+   		{
+   			this->Ball->Stuck = false;
+   		}
+   		     	
     }
+
 }
 
 void Game::Update(GLfloat dt)
 {
-
+	this->Ball->Move(dt, this->Width);
 }
+
 void Game::Render()
 {
     if(this->State == GAME_ACTIVE)
