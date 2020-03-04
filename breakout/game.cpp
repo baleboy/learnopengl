@@ -38,7 +38,7 @@ void Game::Init()
     this->Levels.push_back(two);
     this->Levels.push_back(three);
     this->Levels.push_back(four);
-    this->Level = 1;
+    this->Level = 0;
 }
 
 void Game::ProcessInput(GLfloat dt)
