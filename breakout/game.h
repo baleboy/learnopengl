@@ -5,6 +5,7 @@
 
 #include "sprite_renderer.h"
 #include "game_level.h"
+#include "ball_object.h"
 
 class Game 
 {
@@ -39,6 +40,7 @@ class Game
 
 		SpriteRenderer* Renderer;
 		GameObject* Player;
+		BallObject* Ball;
 
 };
 

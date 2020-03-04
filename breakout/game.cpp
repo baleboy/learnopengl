@@ -7,6 +7,8 @@
 
 const glm::vec2 PLAYER_SIZE(100, 20);
 const GLfloat PLAYER_VELOCITY(500.0f);
+const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
+const GLfloat BALL_RADIUS = 9.5f;
 		
 Game::Game(GLuint width, GLuint height)
 {
@@ -31,7 +33,7 @@ void Game::Init()
 
     // Load textures
     ResourceManager::LoadTexture("images/background.jpg", GL_FALSE, "background");
-    ResourceManager::LoadTexture("images/awesomeface.png", GL_TRUE, "face");
+    ResourceManager::LoadTexture("images/ball.png", GL_TRUE, "ball");
     ResourceManager::LoadTexture("images/block.png", GL_FALSE, "block");
     ResourceManager::LoadTexture("images/block_solid.png", GL_FALSE, "block_solid");
     ResourceManager::LoadTexture("images/paddle.png", true, "paddle");
@@ -53,6 +55,13 @@ void Game::Init()
     );
 
     this->Player = new GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle"));
+
+    glm::vec2 ballPos = glm::vec2(
+    	this->Width / 2 - BALL_RADIUS, 
+        this->Height - PLAYER_SIZE.y - 2*BALL_RADIUS
+    );
+
+    this->Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("ball"));
 }
 
 void Game::ProcessInput(GLfloat dt)
@@ -89,5 +98,6 @@ void Game::Render()
         // Draw level
         this->Levels[this->Level].Draw(*Renderer);
         this->Player->Draw(*Renderer);
+        this->Ball->Draw(*Renderer);
     }
 }
