@@ -36,7 +36,10 @@ class Game
 		void Render();
 
 	private:
+
 		SpriteRenderer* Renderer;
+		GameObject* Player;
+
 };
 
 #endif 

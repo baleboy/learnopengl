@@ -2,7 +2,9 @@
 #include "resource_manager.h"
 #include "shader.h"
 
-
+const glm::vec2 PLAYER_SIZE(100, 20);
+const GLfloat PLAYER_VELOCITY(500.0f);
+		
 Game::Game(GLuint width, GLuint height)
 {
 	Width = width;
@@ -22,13 +24,15 @@ void Game::Init()
     ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
 
-    Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
+    this->Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 
     // Load textures
     ResourceManager::LoadTexture("images/background.jpg", GL_FALSE, "background");
     ResourceManager::LoadTexture("images/awesomeface.png", GL_TRUE, "face");
     ResourceManager::LoadTexture("images/block.png", GL_FALSE, "block");
     ResourceManager::LoadTexture("images/block_solid.png", GL_FALSE, "block_solid");
+    ResourceManager::LoadTexture("images/paddle.png", true, "paddle");
+
     // Load levels
     GameLevel one; one.Load("levels/level1.lvl", this->Width, this->Height * 0.5);
     GameLevel two; two.Load("levels/level2.lvl", this->Width, this->Height * 0.5);
@@ -39,6 +43,13 @@ void Game::Init()
     this->Levels.push_back(three);
     this->Levels.push_back(four);
     this->Level = 0;
+
+    glm::vec2 playerPos = glm::vec2(
+    	this->Width / 2 - PLAYER_SIZE.x / 2, 
+        this->Height - PLAYER_SIZE.y
+    );
+
+    this->Player = new GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle"));
 }
 
 void Game::ProcessInput(GLfloat dt)
@@ -60,5 +71,6 @@ void Game::Render()
         );
         // Draw level
         this->Levels[this->Level].Draw(*Renderer);
+        this->Player->Draw(*Renderer);
     }
 }
