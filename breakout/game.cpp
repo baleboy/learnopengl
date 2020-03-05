@@ -61,7 +61,7 @@ void Game::Init()
         this->Height - PLAYER_SIZE.y - 2*BALL_RADIUS
     );
 
-    this->Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY, ResourceManager::GetTexture("ball"));
+    this->Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY);
 }
 
 void Game::ProcessInput(GLfloat dt)

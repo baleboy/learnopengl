@@ -15,7 +15,7 @@ class BallObject : public GameObject
   
 
         BallObject();
-        BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity, Texture2D sprite);
+        BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity);
 
         glm::vec2 Move(GLfloat dt, GLuint window_width);
         void      Reset(glm::vec2 position, glm::vec2 velocity);

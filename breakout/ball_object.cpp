@@ -1,5 +1,6 @@
 
 #include "ball_object.h"
+#include "resource_manager.h"
 
 BallObject::BallObject()
 : Radius(1.0f), Stuck(true)
@@ -7,11 +8,11 @@ BallObject::BallObject()
 
 }
 
-BallObject::BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity, Texture2D sprite)
-:   GameObject(pos, glm::vec2(radius*2, radius*2), sprite, glm::vec3(1.0f), velocity),
+BallObject::BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity)
+:   GameObject(pos, glm::vec2(radius*2, radius*2), ResourceManager::GetTexture("ball"), glm::vec3(1.0f), velocity),
     Radius(radius), Stuck(true)
 {
-    
+
 }
 
 glm::vec2 BallObject::Move(GLfloat dt, GLuint window_width)
