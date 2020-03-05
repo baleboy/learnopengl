@@ -35,6 +35,7 @@ class Game
 		void ProcessInput(GLfloat dt);
 		void Update(GLfloat dt);
 		void Render();
+		void DoCollisions();
 
 	private:
 
@@ -42,6 +43,7 @@ class Game
 		GameObject* Player;
 		BallObject* Ball;
 
+		GLboolean checkCollision(GameObject &one, GameObject &two);
 };
 
 #endif 
