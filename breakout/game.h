@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <glad/glad.h>
+#include <tuple>
 
 #include "sprite_renderer.h"
 #include "game_level.h"
@@ -39,12 +40,21 @@ class Game
 
 	private:
 
+		enum Direction {
+			UP,
+			RIGHT,
+			DOWN,
+			LEFT
+		};
+
+		typedef std::tuple<GLboolean, Direction, glm::vec2> Collision; 
+
 		SpriteRenderer* Renderer;
 		GameObject* Player;
 		BallObject* Ball;
 
-		GLboolean checkCollision(GameObject &one, GameObject &two);
-		GLboolean checkCollision(BallObject &one, GameObject &two);
+		Game::Collision checkCollision(BallObject &one, GameObject &two);
+		Game::Direction vectorDirection(glm::vec2 target);
 };
 
 #endif 
