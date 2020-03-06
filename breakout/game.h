@@ -44,6 +44,7 @@ class Game
 		BallObject* Ball;
 
 		GLboolean checkCollision(GameObject &one, GameObject &two);
+		GLboolean checkCollision(BallObject &one, GameObject &two);
 };
 
 #endif 
