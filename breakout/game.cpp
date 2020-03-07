@@ -168,7 +168,7 @@ void Game::DoCollisions()
         GLfloat strength = 2.0f;
         glm::vec2 oldVelocity = Ball->Velocity;
         Ball->Velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength; 
-        Ball->Velocity.y = -Ball->Velocity.y;
+        Ball->Velocity.y = -1 * abs(Ball->Velocity.y);  
         Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
     } 
 }
