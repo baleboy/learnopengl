@@ -7,6 +7,7 @@
 #include "sprite_renderer.h"
 #include "game_level.h"
 #include "ball_object.h"
+#include "particle_generator.h"
 
 class Game 
 {
@@ -52,6 +53,7 @@ class Game
 		SpriteRenderer* Renderer;
 		GameObject* Player;
 		BallObject* Ball;
+		ParticleGenerator *Particles; 
 
 		Game::Collision checkCollision(BallObject &one, GameObject &two);
 		Game::Direction vectorDirection(glm::vec2 target);

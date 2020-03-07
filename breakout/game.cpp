@@ -29,6 +29,8 @@ void Game::Init()
         static_cast<GLfloat>(this->Height), 0.0f, -1.0f, 1.0f);
     ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
+    ResourceManager::LoadShader("particle.vs", "particle.fs", nullptr, "particle");
+    ResourceManager::GetShader("particle").Use().SetMatrix4("projection", projection);
 
     this->Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 
@@ -38,6 +40,7 @@ void Game::Init()
     ResourceManager::LoadTexture("images/block.png", GL_FALSE, "block");
     ResourceManager::LoadTexture("images/block_solid.png", GL_FALSE, "block_solid");
     ResourceManager::LoadTexture("images/paddle.png", true, "paddle");
+    ResourceManager::LoadTexture("images/particle.png", GL_TRUE, "particle"); 
 
     // Load levels
     GameLevel one; one.Load("levels/level1.lvl", this->Width, this->Height * 0.5);
@@ -63,6 +66,12 @@ void Game::Init()
     );
 
     this->Ball = new BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY);
+
+    Particles = new ParticleGenerator(
+        ResourceManager::GetShader("particle"), 
+        ResourceManager::GetTexture("particle"), 
+        500
+    );
 }
 
 void Game::ProcessInput(GLfloat dt)
@@ -107,6 +116,8 @@ void Game::Update(GLfloat dt)
         this->resetLevel();
         this->resetPlayer();
     }
+    if (!Ball->Stuck)
+    	Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2));
 }
 
 void Game::Render()
@@ -120,6 +131,8 @@ void Game::Render()
         // Draw level
         this->Levels[this->Level].Draw(*Renderer);
         this->Player->Draw(*Renderer);
+        if (!Ball->Stuck)
+        	this->Particles->Draw();
         this->Ball->Draw(*Renderer);
     }
 }
