@@ -102,6 +102,11 @@ void Game::Update(GLfloat dt)
 {
 	this->Ball->Move(dt, this->Width);
 	this->DoCollisions();
+	if (Ball->Position.y >= this->Height) // Did ball reach bottom edge?
+    {
+        this->resetLevel();
+        this->resetPlayer();
+    }
 }
 
 void Game::Render()
@@ -217,3 +222,30 @@ Game::Direction Game::vectorDirection(glm::vec2 target)
     }
     return (Direction)best_match;
 }   
+
+void Game::resetLevel()
+{
+	for (GameObject &box : this->Levels[this->Level].Bricks)
+    {
+        if (box.Destroyed)
+        	box.Destroyed = false;
+    }
+
+}
+
+void Game::resetPlayer()
+{
+    glm::vec2 playerPos = glm::vec2(
+    	this->Width / 2 - PLAYER_SIZE.x / 2, 
+        this->Height - PLAYER_SIZE.y
+    );
+    Player->Position = playerPos;
+
+    glm::vec2 ballPos = glm::vec2(
+    	this->Width / 2 - BALL_RADIUS, 
+        this->Height - PLAYER_SIZE.y - 2*BALL_RADIUS
+    );
+    Ball->Position = ballPos;
+    Ball->Velocity = INITIAL_BALL_VELOCITY;
+    Ball->Stuck = true;
+}

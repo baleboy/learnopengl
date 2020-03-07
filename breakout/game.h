@@ -55,6 +55,8 @@ class Game
 
 		Game::Collision checkCollision(BallObject &one, GameObject &two);
 		Game::Direction vectorDirection(glm::vec2 target);
+		void resetLevel();
+		void resetPlayer();
 };
 
 #endif 
