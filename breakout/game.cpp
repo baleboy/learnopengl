@@ -156,6 +156,21 @@ void Game::DoCollisions()
             }
         }
     }
+
+    Collision result = checkCollision(*Ball, *Player);
+    if (!Ball->Stuck && std::get<0>(result))
+    {
+        // Check where it hit the board, and change velocity based on where it hit the board
+        GLfloat centerBoard = Player->Position.x + Player->Size.x / 2;
+        GLfloat distance = (Ball->Position.x + Ball->Radius) - centerBoard;
+        GLfloat percentage = distance / (Player->Size.x / 2);
+        // Then move accordingly
+        GLfloat strength = 2.0f;
+        glm::vec2 oldVelocity = Ball->Velocity;
+        Ball->Velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength; 
+        Ball->Velocity.y = -Ball->Velocity.y;
+        Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
+    } 
 }
 
 Game::Collision Game::checkCollision(BallObject &one, GameObject &two) // AABB - Circle collision
