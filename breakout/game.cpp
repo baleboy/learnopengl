@@ -29,7 +29,7 @@ void Game::Init()
         static_cast<GLfloat>(this->Height), 0.0f, -1.0f, 1.0f);
     ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
-    ResourceManager::LoadShader("particle.vs", "particle.fs", nullptr, "particle");
+    ResourceManager::LoadShader("shaders/particle.vs", "shaders/particle.fs", nullptr, "particle");
     ResourceManager::GetShader("particle").Use().SetMatrix4("projection", projection);
 
     this->Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
