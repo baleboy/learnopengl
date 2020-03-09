@@ -5,11 +5,15 @@
 #include "game.h"
 #include "resource_manager.h"
 #include "shader.h"
+#include "post_processor.h"
 
 const glm::vec2 PLAYER_SIZE(100, 20);
 const GLfloat PLAYER_VELOCITY(500.0f);
 const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 const GLfloat BALL_RADIUS = 9.5f;
+
+PostProcessor* Effects;
+GLfloat ShakeTime;
 		
 Game::Game(GLuint width, GLuint height)
 {
@@ -31,6 +35,7 @@ void Game::Init()
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
     ResourceManager::LoadShader("shaders/particle.vs", "shaders/particle.fs", nullptr, "particle");
     ResourceManager::GetShader("particle").Use().SetMatrix4("projection", projection);
+    ResourceManager::LoadShader("shaders/postprocess.vs", "shaders/postprocess.fs", nullptr, "postprocess");
 
     this->Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 
@@ -72,6 +77,8 @@ void Game::Init()
         ResourceManager::GetTexture("particle"), 
         500
     );
+
+    Effects = new PostProcessor(ResourceManager::GetShader("postprocess"), this->Width * 2, this->Height *2);
 }
 
 void Game::ProcessInput(GLfloat dt)
@@ -118,12 +125,21 @@ void Game::Update(GLfloat dt)
     }
     if (!Ball->Stuck)
     	Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2));
+
+    if (ShakeTime > 0.0f)
+    {
+        ShakeTime -= dt;
+        if (ShakeTime <= 0.0f)
+            Effects->Shake = false;
+    }
 }
 
 void Game::Render()
 {
     if(this->State == GAME_ACTIVE)
     {
+
+    	Effects->BeginRender();
         // Draw background
         Renderer->DrawSprite(ResourceManager::GetTexture("background"), 
             glm::vec2(0, 0), glm::vec2(this->Width, this->Height), 0.0f
@@ -134,6 +150,8 @@ void Game::Render()
         if (!Ball->Stuck)
         	this->Particles->Draw();
         this->Ball->Draw(*Renderer);
+        Effects->EndRender();
+        Effects->Render(glfwGetTime());
     }
 }
 
@@ -146,8 +164,14 @@ void Game::DoCollisions()
         	Collision collision = checkCollision(*Ball, box);
             if (std::get<0>(collision))
             {
-                if (!box.IsSolid)
+                if (!box.IsSolid) {
                     box.Destroyed = GL_TRUE;
+                } else 
+                {   // if block is solid, enable shake effect
+                    ShakeTime = 0.05f;
+                    Effects->Shake = true;
+                }
+                
                 // Collision resolution
                 Direction dir = std::get<1>(collision);
                 glm::vec2 diff_vector = std::get<2>(collision);
